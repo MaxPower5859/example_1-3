@@ -3,28 +3,34 @@
 
 int main()
 {
-    DigitalIn gasDetector(D2);
-    DigitalIn overTempDetector(D3);
-    DigitalIn alarmOffButton(BUTTON1);
+    gpio_t gasDetector;
+    gpio_init_in_ex(&gasDetector,D2,PullDown);
+    
 
-    DigitalOut alarmLed(LED1);
+    gpio_t overTempDetector;
+    gpio_init_in_ex(&overTempDetector,D3,PullDown);
+    
 
-    gasDetector.mode(PullDown);
-    overTempDetector.mode(PullDown);
+    gpio_t alarmOffButton;
+    gpio_init_in_ex(&alarmOffButton,BUTTON1,PullDown);
+    
 
-    alarmLed = OFF;
+    gpio_t alarmLed;
+    gpio_init_out(&alarmLed, LED1);
+
+    gpio_write(&alarmLed, OFF);
 
     bool alarmState = OFF;
 
     while (true) {
 
-        if ( gasDetector || overTempDetector ) {
+        if ( gpio_read(&gasDetector) == ON || gpio_read(&overTempDetector) == ON ) {
             alarmState = ON;
         }
 
-        alarmLed = alarmState;
+        gpio_write(&alarmLed, alarmState);
 
-        if ( alarmOffButton ) {
+        if ( gpio_read(&alarmOffButton) == ON ) {
             alarmState = OFF;
         }
     }
